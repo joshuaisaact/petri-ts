@@ -1,6 +1,6 @@
 {
   "name": "petri-ts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "A lightweight TypeScript Petri net engine",
   "main": "dist/index.js",
@@ -23,7 +23,13 @@
     "fmt": "oxfmt --write src test",
     "check": "tsc --noEmit"
   },
-  "keywords": ["petri-net", "state-machine", "workflow", "typescript", "reachability"],
+  "keywords": [
+    "petri-net",
+    "state-machine",
+    "workflow",
+    "typescript",
+    "reachability"
+  ],
   "homepage": "https://www.joshtuddenham.dev/blog/petri-nets/",
   "license": "MIT",
   "devDependencies": {
