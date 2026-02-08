@@ -2,6 +2,8 @@
 
 A small TypeScript Petri net engine. Define places and transitions, fire them, analyse reachable states, or wire up a load/fire/save dispatcher for production use.
 
+For background on Petri nets and the ideas behind this library, see [the blog post](https://www.joshtuddenham.dev/blog/petri-nets/).
+
 ## Install
 
 ```bash

@@ -19,6 +19,7 @@
     "fmt": "oxfmt --write src test",
     "check": "tsc --noEmit"
   },
+  "homepage": "https://www.joshtuddenham.dev/blog/petri-nets/",
   "license": "MIT",
   "devDependencies": {
     "oxfmt": "latest",
