@@ -47,6 +47,27 @@ const { marking } = await d.inspect("order-1");
 
 `memoryAdapter()` is a Map-backed store for tests. In production, write your own `PersistenceAdapter` that wraps your database — the lib doesn't handle locking, your transaction does.
 
+## Analyse
+
+Run all analysis in one call — reachable states, terminal states, deadlock check, invariant verification, and optional DOT output:
+
+```ts
+import { analyse } from "petri-ts";
+
+const result = analyse(net, {
+  invariants: [
+    { weights: { idle: 1, running: 1, done: 1 } },
+  ],
+  dot: true,
+});
+
+result.reachableStateCount; // 3
+result.terminalStates;      // [{ idle: 0, running: 0, done: 1 }]
+result.isDeadlockFree;      // false (done is terminal)
+result.invariants[0].holds; // true (tokens conserved)
+result.dot;                 // Graphviz DOT string
+```
+
 ## API
 
 | Function | Description |
@@ -58,6 +79,7 @@ const { marking } = await d.inspect("order-1");
 | `isDeadlockFree(net)` | True if no terminal states exist |
 | `enabledTransitions(net, marking)` | Which transitions can fire |
 | `checkInvariant(net, weights)` | Verify a weighted token sum is constant |
+| `analyse(net, options?)` | All-in-one analysis: states, deadlocks, invariants, DOT |
 | `toDot(net, marking?)` | Graphviz DOT output |
 | `createDispatcher(net, adapter)` | Load/fire/save dispatcher |
 | `memoryAdapter()` | In-memory persistence for tests |
