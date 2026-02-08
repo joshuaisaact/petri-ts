@@ -23,6 +23,7 @@
     "fmt": "oxfmt --write src test",
     "check": "tsc --noEmit"
   },
+  "keywords": ["petri-net", "state-machine", "workflow", "typescript", "reachability"],
   "homepage": "https://www.joshtuddenham.dev/blog/petri-nets/",
   "license": "MIT",
   "devDependencies": {
