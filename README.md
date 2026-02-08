@@ -7,7 +7,7 @@ For background on Petri nets and the ideas behind this library, see [the blog po
 ## Install
 
 ```bash
-bun add petri-ts
+npm install petri-ts
 ```
 
 ## Quick start
