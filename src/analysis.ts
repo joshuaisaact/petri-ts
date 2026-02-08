@@ -1,8 +1,11 @@
 import type { Marking, PetriNet, Transition } from "./core";
 import { canFire, fire } from "./core";
 
+const DEFAULT_LIMIT = 10_000;
+
 export function reachableStates<Place extends string>(
   net: PetriNet<Place>,
+  limit: number = DEFAULT_LIMIT,
 ): Marking<Place>[] {
   const seen = new Set<string>();
   const queue: Marking<Place>[] = [net.initialMarking];
@@ -14,6 +17,12 @@ export function reachableStates<Place extends string>(
     if (seen.has(key)) continue;
     seen.add(key);
     result.push(current);
+
+    if (seen.size > limit) {
+      throw new Error(
+        `Reachable state space exceeded ${limit} states — the net may be unbounded`,
+      );
+    }
 
     for (const t of net.transitions) {
       if (canFire(current, t)) {

@@ -42,6 +42,17 @@ describe("reachableStates", () => {
     expect(states.length).toBe(5);
   });
 
+  it("throws when state space exceeds limit", () => {
+    type P = "a";
+    const unbounded: PetriNet<P> = {
+      transitions: [{ name: "grow", inputs: [], outputs: ["a"] }],
+      initialMarking: { a: 0 },
+    };
+    expect(() => reachableStates(unbounded, 50)).toThrow(
+      "exceeded 50 states",
+    );
+  });
+
   it("includes the initial marking", () => {
     const states = reachableStates(coffeeNet);
     expect(states).toContainEqual(coffeeNet.initialMarking);
