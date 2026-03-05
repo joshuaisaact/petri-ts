@@ -1,14 +1,21 @@
 {
   "name": "petri-ts",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "type": "module",
   "description": "A lightweight TypeScript Petri net engine",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
   "files": [
@@ -17,7 +24,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "bun build src/index.ts --outdir dist --target node && tsc -p tsconfig.build.json",
+    "build": "tsup src/index.ts --format esm,cjs --dts",
     "test": "vitest run",
     "lint": "oxlint",
     "fmt": "oxfmt --write src test",
@@ -35,6 +42,7 @@
   "devDependencies": {
     "oxfmt": "latest",
     "oxlint": "latest",
+    "tsup": "^8.5.1",
     "typescript": "^5",
     "vitest": "^4"
   }
