@@ -17,6 +17,11 @@ describe("canFire", () => {
     expect(canFire({ a: 0, b: 0, c: 0 }, t)).toBe(false);
   });
 
+  it("returns false when input place is missing from marking", () => {
+    const sparse = { b: 0, c: 0 } as Marking<Place>;
+    expect(canFire(sparse, t)).toBe(false);
+  });
+
   it("returns false when duplicate inputs require more tokens than available", () => {
     const t2: Transition<Place> = {
       name: "t2",

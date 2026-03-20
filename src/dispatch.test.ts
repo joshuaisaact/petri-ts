@@ -68,6 +68,14 @@ describe("createDispatcher", () => {
     );
   });
 
+  it("always assigns a version even when none is provided", async () => {
+    const d = createDispatcher(net, memoryAdapter());
+    await d.create("inst-1");
+    const state = await d.inspect("inst-1");
+    expect(state.version).toBeDefined();
+    expect(typeof state.version).toBe("string");
+  });
+
   it("throws on unknown instance", async () => {
     const d = createDispatcher(net, memoryAdapter());
     await expect(d.inspect("ghost")).rejects.toThrow("Instance not found");

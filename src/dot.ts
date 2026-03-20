@@ -5,7 +5,8 @@ function escapeDot(s: string): string {
     .replace(/\\/g, "\\\\")
     .replace(/"/g, '\\"')
     .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r");
+    .replace(/\r/g, "\\r")
+    .replace(/[<>{}|]/g, "\\$&");
 }
 
 export function toDot<Place extends string>(
@@ -25,20 +26,23 @@ export function toDot<Place extends string>(
 
   dot += "\n";
 
-  for (const t of net.transitions) {
+  for (let i = 0; i < net.transitions.length; i++) {
+    const t = net.transitions[i]!;
+    const id = `t${i}`;
     const esc = escapeDot(t.name);
-    dot += `  "${esc}" [shape=box style=filled fillcolor=lightgrey];\n`;
+    dot += `  "${id}" [shape=box style=filled fillcolor=lightgrey label="${esc}"];\n`;
   }
 
   dot += "\n";
 
-  for (const t of net.transitions) {
-    const escName = escapeDot(t.name);
+  for (let i = 0; i < net.transitions.length; i++) {
+    const t = net.transitions[i]!;
+    const id = `t${i}`;
     for (const input of t.inputs) {
-      dot += `  "${escapeDot(input)}" -> "${escName}";\n`;
+      dot += `  "${escapeDot(input)}" -> "${id}";\n`;
     }
     for (const output of t.outputs) {
-      dot += `  "${escName}" -> "${escapeDot(output)}";\n`;
+      dot += `  "${id}" -> "${escapeDot(output)}";\n`;
     }
   }
 
