@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { PetriNet } from "../src/core";
-import { toDot } from "../src/dot";
+import type { PetriNet } from "./core";
+import { toDot } from "./dot";
 
 type P = "a" | "b";
 
