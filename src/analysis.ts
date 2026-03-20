@@ -1,5 +1,6 @@
 import type { Marking, PetriNet, Transition } from "./core";
 import { canFire, fire } from "./core";
+import { toDot } from "./dot";
 
 const DEFAULT_LIMIT = 10_000;
 
@@ -12,28 +13,27 @@ export function reachableStates<Place extends string>(
   const result: Marking<Place>[] = [];
   let head = 0;
 
-  const enqueue = (marking: Marking<Place>) => {
-    const key = JSON.stringify(marking, Object.keys(marking).sort());
-    if (seen.has(key)) return;
-    seen.add(key);
-    queue.push(marking);
-  };
-
-  enqueue(net.initialMarking);
+  const initialKey = JSON.stringify(net.initialMarking, Object.keys(net.initialMarking).sort());
+  seen.add(initialKey);
+  queue.push(net.initialMarking);
 
   while (head < queue.length) {
     const current = queue[head++]!;
     result.push(current);
 
-    if (seen.size >= limit) {
-      throw new Error(
-        `Reachable state space exceeded ${limit} states — the net may be unbounded`,
-      );
-    }
-
     for (const t of net.transitions) {
       if (canFire(current, t)) {
-        enqueue(fire(current, t));
+        const next = fire(current, t);
+        const key = JSON.stringify(next, Object.keys(next).sort());
+        if (!seen.has(key)) {
+          if (seen.size >= limit) {
+            throw new Error(
+              `Reachable state space exceeded ${limit} states — the net may be unbounded`,
+            );
+          }
+          seen.add(key);
+          queue.push(next);
+        }
       }
     }
   }
@@ -80,6 +80,42 @@ export function checkInvariant<Place extends string>(
     return sum;
   };
 
+  if (resolved.length === 0) return true;
   const expected = weightedSum(resolved[0]!);
   return resolved.every((marking) => weightedSum(marking) === expected);
+}
+
+export type AnalysisResult<Place extends string> = {
+  reachableStateCount: number;
+  terminalStates: Marking<Place>[];
+  isDeadlockFree: boolean;
+  invariants: { weights: Partial<Record<Place, number>>; holds: boolean }[];
+  dot?: string;
+};
+
+export type AnalyseOptions<Place extends string> = {
+  dot?: boolean;
+  invariants?: { weights: Partial<Record<Place, number>> }[];
+};
+
+export function analyse<Place extends string>(
+  net: PetriNet<Place>,
+  options: AnalyseOptions<Place> = {},
+): AnalysisResult<Place> {
+  const reachable = reachableStates(net);
+  const terminal = terminalStates(net, reachable);
+  const deadlockFree = terminal.length === 0;
+
+  const invariantResults = (options.invariants ?? []).map((inv) => ({
+    weights: inv.weights,
+    holds: checkInvariant(net, inv.weights, reachable),
+  }));
+
+  return {
+    reachableStateCount: reachable.length,
+    terminalStates: terminal,
+    isDeadlockFree: deadlockFree,
+    invariants: invariantResults,
+    dot: options.dot ? toDot(net) : undefined,
+  };
 }

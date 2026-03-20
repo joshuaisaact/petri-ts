@@ -50,6 +50,15 @@ export function createDispatcher<Place extends string>(
 ) {
   return {
     async create(id: string, version?: string) {
+      let exists = true;
+      try {
+        await adapter.load(id);
+      } catch {
+        exists = false;
+      }
+      if (exists) {
+        throw new Error(`Instance already exists: ${id}`);
+      }
       const state: InstanceState<Place> = {
         marking: { ...net.initialMarking },
         version,

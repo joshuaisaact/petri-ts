@@ -34,6 +34,6 @@ export function fire<Place extends string>(
   }
   const newMarking = Object.assign(Object.create(null), marking) as Marking<Place>;
   for (const place of transition.inputs) newMarking[place] -= 1;
-  for (const place of transition.outputs) newMarking[place] += 1;
+  for (const place of transition.outputs) newMarking[place] = (newMarking[place] ?? 0) + 1;
   return newMarking;
 }
