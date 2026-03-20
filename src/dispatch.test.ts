@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type { PetriNet } from "../src/core";
-import { createDispatcher, memoryAdapter } from "../src/dispatch";
+import type { PetriNet } from "./core";
+import { createDispatcher, memoryAdapter } from "./dispatch";
 
 type P = "idle" | "running" | "done";
 

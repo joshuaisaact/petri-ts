@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import type { PetriNet } from "../src/core";
+import type { PetriNet } from "./core";
 import {
   reachableStates,
   terminalStates,
   isDeadlockFree,
   enabledTransitions,
   checkInvariant,
-} from "../src/analysis";
+} from "./analysis";
 
 type CoffeePlace =
   | "waterCold"

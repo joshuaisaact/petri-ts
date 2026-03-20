@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { canFire, fire } from "../src/core";
-import type { Marking, Transition } from "../src/core";
+import { canFire, fire } from "./core";
+import type { Marking, Transition } from "./core";
 
 type Place = "a" | "b" | "c";
 
