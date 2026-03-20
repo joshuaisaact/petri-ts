@@ -44,23 +44,26 @@ export function enabledTransitions<Place extends string>(
 
 export function terminalStates<Place extends string>(
   net: PetriNet<Place>,
+  states?: Marking<Place>[],
 ): Marking<Place>[] {
-  return reachableStates(net).filter(
+  return (states ?? reachableStates(net)).filter(
     (marking) => enabledTransitions(net, marking).length === 0,
   );
 }
 
 export function isDeadlockFree<Place extends string>(
   net: PetriNet<Place>,
+  states?: Marking<Place>[],
 ): boolean {
-  return terminalStates(net).length === 0;
+  return terminalStates(net, states).length === 0;
 }
 
 export function checkInvariant<Place extends string>(
   net: PetriNet<Place>,
   weights: Partial<Record<Place, number>>,
+  states?: Marking<Place>[],
 ): boolean {
-  const states = reachableStates(net);
+  const resolved = states ?? reachableStates(net);
 
   const weightedSum = (marking: Marking<Place>): number => {
     let sum = 0;
@@ -70,6 +73,6 @@ export function checkInvariant<Place extends string>(
     return sum;
   };
 
-  const expected = weightedSum(states[0]!);
-  return states.every((marking) => weightedSum(marking) === expected);
+  const expected = weightedSum(resolved[0]!);
+  return resolved.every((marking) => weightedSum(marking) === expected);
 }

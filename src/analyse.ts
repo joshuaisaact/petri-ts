@@ -2,7 +2,6 @@ import type { PetriNet, Marking } from "./core";
 import {
   reachableStates,
   terminalStates,
-  isDeadlockFree,
   checkInvariant,
 } from "./analysis";
 import { toDot } from "./dot";
@@ -25,12 +24,12 @@ export function analyse<Place extends string>(
   options: AnalyseOptions<Place> = {},
 ): AnalysisResult<Place> {
   const reachable = reachableStates(net);
-  const terminal = terminalStates(net);
-  const deadlockFree = isDeadlockFree(net);
+  const terminal = terminalStates(net, reachable);
+  const deadlockFree = terminal.length === 0;
 
   const invariantResults = (options.invariants ?? []).map((inv) => ({
     weights: inv.weights,
-    holds: checkInvariant(net, inv.weights),
+    holds: checkInvariant(net, inv.weights, reachable),
   }));
 
   return {
