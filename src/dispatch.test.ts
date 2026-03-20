@@ -60,6 +60,14 @@ describe("createDispatcher", () => {
     );
   });
 
+  it("throws when creating a duplicate instance", async () => {
+    const d = createDispatcher(net, memoryAdapter());
+    await d.create("inst-1");
+    await expect(d.create("inst-1")).rejects.toThrow(
+      "Instance already exists: inst-1",
+    );
+  });
+
   it("throws on unknown instance", async () => {
     const d = createDispatcher(net, memoryAdapter());
     await expect(d.inspect("ghost")).rejects.toThrow("Instance not found");

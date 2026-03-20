@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { PetriNet } from "./core";
-import { analyse } from "./analyse";
+import { analyse } from "./analysis";
 
 type CoffeePlace =
   | "waterCold"
