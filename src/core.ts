@@ -15,7 +15,14 @@ export function canFire<Place extends string>(
   marking: Marking<Place>,
   transition: Transition<Place>,
 ): boolean {
-  return transition.inputs.every((place) => marking[place] > 0);
+  const required = new Map<Place, number>();
+  for (const place of transition.inputs) {
+    required.set(place, (required.get(place) ?? 0) + 1);
+  }
+  for (const [place, count] of required) {
+    if (marking[place] < count) return false;
+  }
+  return true;
 }
 
 export function fire<Place extends string>(

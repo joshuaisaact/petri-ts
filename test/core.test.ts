@@ -16,6 +16,16 @@ describe("canFire", () => {
   it("returns false when inputs are empty", () => {
     expect(canFire({ a: 0, b: 0, c: 0 }, t)).toBe(false);
   });
+
+  it("returns false when duplicate inputs require more tokens than available", () => {
+    const t2: Transition<Place> = {
+      name: "t2",
+      inputs: ["a", "a"],
+      outputs: ["b"],
+    };
+    expect(canFire({ a: 1, b: 0, c: 0 }, t2)).toBe(false);
+    expect(canFire({ a: 2, b: 0, c: 0 }, t2)).toBe(true);
+  });
 });
 
 describe("fire", () => {
@@ -43,5 +53,38 @@ describe("fire", () => {
     };
     const result = fire({ a: 1, b: 1, c: 0 }, multi);
     expect(result).toEqual({ a: 0, b: 0, c: 2 });
+  });
+
+  it("handles duplicate inputs (arc weight > 1)", () => {
+    const t2: Transition<Place> = {
+      name: "t2",
+      inputs: ["a", "a"],
+      outputs: ["b"],
+    };
+    const result = fire({ a: 2, b: 0, c: 0 }, t2);
+    expect(result).toEqual({ a: 0, b: 1, c: 0 });
+  });
+
+  it("throws when duplicate inputs exceed available tokens", () => {
+    const t2: Transition<Place> = {
+      name: "t2",
+      inputs: ["a", "a"],
+      outputs: ["b"],
+    };
+    expect(() => fire({ a: 1, b: 0, c: 0 }, t2)).toThrow(
+      "Cannot fire transition: t2",
+    );
+  });
+
+  it("never produces negative token counts", () => {
+    const t2: Transition<Place> = {
+      name: "t2",
+      inputs: ["a", "a", "a"],
+      outputs: ["b"],
+    };
+    expect(() => fire({ a: 2, b: 0, c: 0 }, t2)).toThrow();
+    const result = fire({ a: 3, b: 0, c: 0 }, t2);
+    expect(result.a).toBe(0);
+    expect(result.b).toBe(1);
   });
 });

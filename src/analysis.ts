@@ -13,7 +13,7 @@ export function reachableStates<Place extends string>(
 
   while (queue.length > 0) {
     const current = queue.shift()!;
-    const key = JSON.stringify(current);
+    const key = JSON.stringify(current, Object.keys(current).sort());
     if (seen.has(key)) continue;
     seen.add(key);
     result.push(current);
