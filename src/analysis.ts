@@ -13,8 +13,10 @@ export function reachableStates<Place extends string>(
   const result: Marking<Place>[] = [];
   let head = 0;
 
-  const initialKey = JSON.stringify(net.initialMarking, Object.keys(net.initialMarking).sort());
-  seen.add(initialKey);
+  const sortedKeys = Object.keys(net.initialMarking).sort();
+  const toKey = (m: Marking<Place>) => JSON.stringify(m, sortedKeys);
+
+  seen.add(toKey(net.initialMarking));
   queue.push(net.initialMarking);
 
   while (head < queue.length) {
@@ -24,7 +26,7 @@ export function reachableStates<Place extends string>(
     for (const t of net.transitions) {
       if (canFire(current, t)) {
         const next = fire(current, t);
-        const key = JSON.stringify(next, Object.keys(next).sort());
+        const key = toKey(next);
         if (!seen.has(key)) {
           if (seen.size >= limit) {
             throw new Error(
@@ -73,7 +75,7 @@ export function checkInvariant<Place extends string>(
 
   const weightedSum = (marking: Marking<Place>): number => {
     let sum = 0;
-    for (const [place, weight] of Object.entries(weights) as [Place, number][]) {
+    for (const [place, weight] of Object.entries(weights) as [Place, number | undefined][]) {
       if (weight == null) continue;
       sum += marking[place] * weight;
     }
@@ -94,7 +96,7 @@ export type AnalysisResult<Place extends string> = {
 };
 
 export type AnalyseOptions<Place extends string> = {
-  dot?: boolean;
+  dot?: boolean | { marking: Marking<Place> };
   invariants?: { weights: Partial<Record<Place, number>> }[];
 };
 
@@ -116,6 +118,8 @@ export function analyse<Place extends string>(
     terminalStates: terminal,
     isDeadlockFree: deadlockFree,
     invariants: invariantResults,
-    dot: options.dot ? toDot(net) : undefined,
+    dot: options.dot
+      ? toDot(net, typeof options.dot === "object" ? options.dot.marking : undefined)
+      : undefined,
   };
 }

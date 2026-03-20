@@ -14,4 +14,4 @@ export type { AnalysisResult, AnalyseOptions } from "./analysis";
 export { toDot } from "./dot";
 
 export { createDispatcher, memoryAdapter } from "./dispatch";
-export type { InstanceState, PersistenceAdapter } from "./dispatch";
+export type { Dispatcher, DispatcherOptions, InstanceState, PersistenceAdapter } from "./dispatch";
