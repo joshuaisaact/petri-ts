@@ -40,7 +40,8 @@ describe("createDispatcher", () => {
     await d.dispatch("inst-1", "start");
     const state = await d.inspect("inst-1");
     expect(state.marking).toEqual({ idle: 0, running: 1, done: 0 });
-    expect(state.version).toBe("v1");
+    expect(state.version).toBeDefined();
+    expect(state.version).not.toBe("v1");
   });
 
   it("throws on unknown transition", async () => {
@@ -62,5 +63,28 @@ describe("createDispatcher", () => {
   it("throws on unknown instance", async () => {
     const d = createDispatcher(net, memoryAdapter());
     await expect(d.inspect("ghost")).rejects.toThrow("Instance not found");
+  });
+
+  it("detects version conflict on concurrent dispatch", async () => {
+    const adapter = memoryAdapter<P>();
+    const d1 = createDispatcher(net, adapter);
+    const d2 = createDispatcher(net, adapter);
+
+    await d1.create("inst-1", "v1");
+
+    // Both load the same state
+    const p1 = d1.dispatch("inst-1", "start");
+    const p2 = d2.dispatch("inst-1", "start");
+
+    // One succeeds, the other should conflict on save
+    const results = await Promise.allSettled([p1, p2]);
+    const fulfilled = results.filter((r) => r.status === "fulfilled");
+    const rejected = results.filter((r) => r.status === "rejected");
+
+    expect(fulfilled).toHaveLength(1);
+    expect(rejected).toHaveLength(1);
+    expect((rejected[0] as PromiseRejectedResult).reason.message).toContain(
+      "Version conflict",
+    );
   });
 });
