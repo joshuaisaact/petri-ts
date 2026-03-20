@@ -26,4 +26,23 @@ describe("toDot", () => {
     expect(dot).toContain("a\\n0");
     expect(dot).toContain("b\\n1");
   });
+
+  it("escapes double quotes and backslashes in names", () => {
+    type Q = 'say "hi"' | "back\\slash";
+    const special: PetriNet<Q> = {
+      transitions: [
+        {
+          name: 'trans"ition',
+          inputs: ['say "hi"'],
+          outputs: ["back\\slash"],
+        },
+      ],
+      initialMarking: { 'say "hi"': 1, "back\\slash": 0 },
+    };
+    const dot = toDot(special);
+    expect(dot).toContain('"say \\"hi\\""');
+    expect(dot).toContain('"back\\\\slash"');
+    expect(dot).toContain('"trans\\"ition"');
+    expect(dot).not.toMatch(/[^\\]"hi"/);
+  });
 });
