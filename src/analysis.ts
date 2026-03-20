@@ -8,18 +8,24 @@ export function reachableStates<Place extends string>(
   limit: number = DEFAULT_LIMIT,
 ): Marking<Place>[] {
   const seen = new Set<string>();
-  const queue: Marking<Place>[] = [net.initialMarking];
+  const queue: Marking<Place>[] = [];
   const result: Marking<Place>[] = [];
   let head = 0;
 
+  const enqueue = (marking: Marking<Place>) => {
+    const key = JSON.stringify(marking, Object.keys(marking).sort());
+    if (seen.has(key)) return;
+    seen.add(key);
+    queue.push(marking);
+  };
+
+  enqueue(net.initialMarking);
+
   while (head < queue.length) {
     const current = queue[head++]!;
-    const key = JSON.stringify(current, Object.keys(current).sort());
-    if (seen.has(key)) continue;
-    seen.add(key);
     result.push(current);
 
-    if (seen.size > limit) {
+    if (seen.size >= limit) {
       throw new Error(
         `Reachable state space exceeded ${limit} states — the net may be unbounded`,
       );
@@ -27,7 +33,7 @@ export function reachableStates<Place extends string>(
 
     for (const t of net.transitions) {
       if (canFire(current, t)) {
-        queue.push(fire(current, t));
+        enqueue(fire(current, t));
       }
     }
   }
