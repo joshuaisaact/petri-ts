@@ -44,10 +44,23 @@ export function memoryAdapter<
   };
 }
 
+export type DispatcherOptions = {
+  generateVersion?: () => string;
+};
+
+export type Dispatcher<Place extends string> = {
+  create(id: string, version?: string): Promise<Marking<Place>>;
+  dispatch(id: string, transitionName: string): Promise<Marking<Place>>;
+  inspect(id: string): Promise<InstanceState<Place>>;
+};
+
 export function createDispatcher<Place extends string>(
   net: PetriNet<Place>,
   adapter: PersistenceAdapter<Place>,
-) {
+  options?: DispatcherOptions,
+): Dispatcher<Place> {
+  const generateVersion = options?.generateVersion ?? (() => crypto.randomUUID());
+
   return {
     async create(id: string, version?: string) {
       let exists = true;
@@ -60,7 +73,7 @@ export function createDispatcher<Place extends string>(
         throw new Error(`Instance already exists: ${id}`);
       }
       const state: InstanceState<Place> = {
-        marking: { ...net.initialMarking },
+        marking: Object.assign(Object.create(null), net.initialMarking) as Marking<Place>,
         version,
       };
       await adapter.save(id, state);
@@ -77,7 +90,7 @@ export function createDispatcher<Place extends string>(
       }
       const previousVersion = state.version;
       state.marking = fire(state.marking, transition);
-      state.version = crypto.randomUUID();
+      state.version = generateVersion();
       await adapter.save(id, state, previousVersion);
       return state.marking;
     },

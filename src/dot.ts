@@ -1,7 +1,11 @@
 import type { Marking, PetriNet } from "./core";
 
 function escapeDot(s: string): string {
-  return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return s
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, "\\n")
+    .replace(/\r/g, "\\r");
 }
 
 export function toDot<Place extends string>(
