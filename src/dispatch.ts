@@ -9,13 +9,15 @@ export type InstanceState<Place extends string> = {
 export type PersistenceAdapter<Place extends string> = {
   load(id: string): Promise<InstanceState<Place>>;
   /**
-   * Persist state. If `expectedVersion` is provided, the adapter should
+   * Persist state. If `expectedVersion` is a string, the adapter should
    * throw if the stored version does not match (optimistic concurrency).
+   * If `expectedVersion` is `null`, the adapter should throw if the
+   * instance already exists (atomic create).
    */
   save(
     id: string,
     state: InstanceState<Place>,
-    expectedVersion?: string,
+    expectedVersion?: string | null,
   ): Promise<void>;
 };
 
@@ -31,7 +33,11 @@ export function memoryAdapter<
       return structuredClone(state);
     },
     async save(id, state, expectedVersion) {
-      if (expectedVersion !== undefined) {
+      if (expectedVersion === null) {
+        if (store.has(id)) {
+          throw new Error(`Instance already exists: ${id}`);
+        }
+      } else if (expectedVersion !== undefined) {
         const existing = store.get(id);
         if (existing?.version !== expectedVersion) {
           throw new Error(
@@ -63,20 +69,11 @@ export function createDispatcher<Place extends string>(
 
   return {
     async create(id: string, version?: string) {
-      let exists = true;
-      try {
-        await adapter.load(id);
-      } catch {
-        exists = false;
-      }
-      if (exists) {
-        throw new Error(`Instance already exists: ${id}`);
-      }
       const state: InstanceState<Place> = {
         marking: Object.assign(Object.create(null), net.initialMarking) as Marking<Place>,
-        version,
+        version: version ?? generateVersion(),
       };
-      await adapter.save(id, state);
+      await adapter.save(id, state, null);
       return state.marking;
     },
 

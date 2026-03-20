@@ -13,7 +13,12 @@ export function reachableStates<Place extends string>(
   const result: Marking<Place>[] = [];
   let head = 0;
 
-  const sortedKeys = Object.keys(net.initialMarking).sort();
+  const placeSet = new Set(Object.keys(net.initialMarking));
+  for (const t of net.transitions) {
+    for (const p of t.inputs) placeSet.add(p);
+    for (const p of t.outputs) placeSet.add(p);
+  }
+  const sortedKeys = [...placeSet].toSorted();
   const toKey = (m: Marking<Place>) => JSON.stringify(m, sortedKeys);
 
   seen.add(toKey(net.initialMarking));
