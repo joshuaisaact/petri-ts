@@ -32,7 +32,7 @@ export function fire<Place extends string>(
   if (!canFire(marking, transition)) {
     throw new Error(`Cannot fire transition: ${transition.name}`);
   }
-  const newMarking = { ...marking };
+  const newMarking = Object.assign(Object.create(null), marking) as Marking<Place>;
   for (const place of transition.inputs) newMarking[place] -= 1;
   for (const place of transition.outputs) newMarking[place] += 1;
   return newMarking;
