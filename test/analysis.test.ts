@@ -57,6 +57,22 @@ describe("reachableStates", () => {
     const states = reachableStates(coffeeNet);
     expect(states).toContainEqual(coffeeNet.initialMarking);
   });
+
+  it("deduplicates markings regardless of key insertion order", () => {
+    // Keys in different order but same values should be treated as the same state
+    type P = "x" | "y";
+    const net: PetriNet<P> = {
+      transitions: [
+        { name: "swap", inputs: ["x"], outputs: ["y"] },
+        { name: "back", inputs: ["y"], outputs: ["x"] },
+      ],
+      // Key order: x, y
+      initialMarking: { x: 1, y: 0 },
+    };
+    const states = reachableStates(net);
+    // Only 2 reachable states: {x:1,y:0} and {x:0,y:1}
+    expect(states.length).toBe(2);
+  });
 });
 
 describe("terminalStates", () => {
