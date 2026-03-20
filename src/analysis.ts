@@ -10,9 +10,10 @@ export function reachableStates<Place extends string>(
   const seen = new Set<string>();
   const queue: Marking<Place>[] = [net.initialMarking];
   const result: Marking<Place>[] = [];
+  let head = 0;
 
-  while (queue.length > 0) {
-    const current = queue.shift()!;
+  while (head < queue.length) {
+    const current = queue[head++]!;
     const key = JSON.stringify(current, Object.keys(current).sort());
     if (seen.has(key)) continue;
     seen.add(key);
