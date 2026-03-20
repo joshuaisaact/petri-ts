@@ -67,8 +67,8 @@ export function checkInvariant<Place extends string>(
 
   const weightedSum = (marking: Marking<Place>): number => {
     let sum = 0;
-    for (const [place, weight] of Object.entries(weights) as [Place, number][]) {
-      sum += marking[place] * weight;
+    for (const [place, weight] of Object.entries(weights)) {
+      if (weight != null) sum += marking[place as Place] * weight;
     }
     return sum;
   };
